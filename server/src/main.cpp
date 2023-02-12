@@ -1,11 +1,11 @@
 // Для инициализации сокета на строне сервера необходимо
-// 1) Загрузить библиотеку
-// 2) проинициализировать сокет 
-// 3) забиндить сокет
-// 4) начать листенить сокет 
-// 5)
-// 6)
-// 7)
+// 1) Загрузить библиотеку - WSAStartup()
+// 2) проинициализировать сокет - socket() 
+// 3) забиндить сокет - bind()
+// 4) начать листенить сокет - listen()
+// 5) создать connection - accept(), connect()
+// 6) Отправить или принять данные - recv(), send(), recvform(), sendto()
+// 7) Дисконект - closesocket()
 
 #include"serverconfig.h"
 #include"include.h"
@@ -62,6 +62,67 @@ int main(){
     LOG("SOCKET START LISTENING ");
     //socket set to listened
 
+    //socket try to accept connection
+    SOCKET acceptSocket;
+    std::cout << "whait client connection" << std::endl;
+   
+    acceptSocket = accept(serverSocket, NULL, NULL); // ожидает соеденения
+    if(acceptSocket == INVALID_SOCKET){
+        std::cout << "accepted failed" << std::endl;
+        std::cout << WSAGetLastError() << std::endl;
+        closesocket(serverSocket);
+        WSACleanup();
+        return EXIT_FAILURE;
+    }
+    //socket accepted connection
+
+    std::cout << "client connectd" << std::endl;
+    //после подключение клиента к серверу сокет дублируется, так что держать открытым сокет более не требуется
+    if(CLOSE_SERVER_SOCKET_AFTER_CONNECTION){
+        std::cout << "server socket not longer needed" << std::endl;
+        closesocket(serverSocket);
+    }
+  
+
+    //if connection accepted
+    int status;
+    char* reqbuff = new char[BUFFSIZE];
+    do{
+        status = recv(acceptSocket, reqbuff, BUFFSIZE, 0);
+        if(status > 0){
+            std::cout << "bytes reveived: " << status << std::endl;
+            std::cout << "message: ";
+            std::cout << reqbuff << std::endl;
+            continue;
+        }
+        if(status == 0){
+            std::cout << "connection closing with exit code = " << status << std::endl;
+        }
+        if(status < 0){
+            std::cout << "fail to recv data" << std::endl;
+            std::cout << WSAGetLastError() << std::endl;
+            closesocket(acceptSocket);
+            WSACleanup();
+            return EXIT_FAILURE;
+        }
+
+    }while(status > 0); 
+    //end 
+
+    //разрыв соеденения 
+    int disconnect = shutdown(acceptSocket, SD_SEND);
+    if(disconnect == SOCKET_ERROR){
+        std::cout << "shutdown failed with error" << std::endl;
+        std::cout << WSAGetLastError() << std::endl;
+        closesocket(acceptSocket);
+        WSACleanup();
+        return EXIT_FAILURE;
+    }
+
+    //end
+
+
+
     std::cout << "try to find socket with " << PORT << " port in netstat -a!" << std::endl;
     std::system("pause");
     closesocket(serverSocket);
@@ -69,3 +130,4 @@ int main(){
     std::system("pause");
     return EXIT_SUCCESS;
 }
+ 
