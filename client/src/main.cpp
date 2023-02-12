@@ -34,8 +34,33 @@ int main(){
         WSACleanup();
         return EXIT_FAILURE;
     } 
+    LOG("con status = ");
+    LOG(con_status);
     LOG("Connection success");
 
+    if(clientSocket == INVALID_SOCKET){
+        std::cout << "bad socket" << std::endl;
+        closesocket(clientSocket);
+        WSACleanup();
+    }
+
+    char* message = "Isaac Newton";
+    int send_code = send(clientSocket, message, (int)strlen(message), 0);
+    if(send_code > 0){
+        std::cout << "bytes recived " << send_code << std::endl;
+    }
+    if(send_code == 0){
+        std::cout << "connection closed with exit code = 0" << std::endl;
+    }
+    if(send_code < 0){
+        std::cout << "data recv fail "<< WSAGetLastError() << std::endl;
+        closesocket(clientSocket);
+        WSACleanup();
+        return EXIT_FAILURE;
+    }
+
+    closesocket(clientSocket);
+    WSACleanup();
     return EXIT_SUCCESS;
 }
 
