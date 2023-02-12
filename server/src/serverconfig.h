@@ -3,4 +3,5 @@
 
 
 #define PORT 30300
+#define MAX_CONNECTIONS 1
 #endif

@@ -52,7 +52,7 @@ int main(){
     //socket binded
 
     //start setting socket listening 
-    int sockListen = listen(serverSocket, 1); //поставили serversocket слушать на одно максимальное подключение 
+    int sockListen = listen(serverSocket, MAX_CONNECTIONS); //поставили serversocket слушать на n подключений см.конфигурацию
     if(sockListen == SOCKET_ERROR){
         std::cout << "function socket listen - error" << std::endl;
         std::cout << WSAGetLastError() << std::endl;
