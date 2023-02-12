@@ -1,3 +1,12 @@
+// Для инициализации сокета на строне сервера необходимо
+// 1) Загрузить библиотеку
+// 2) проинициализировать сокет 
+// 3) забиндить сокет
+// 4) начать листенить сокет 
+// 5)
+// 6)
+// 7)
+
 #include"serverconfig.h"
 #include"include.h"
 int main(){
@@ -36,12 +45,24 @@ int main(){
     int sockBind = bind(serverSocket, (SOCKADDR * )&service, sizeof(service));
     if(sockBind == SOCKET_ERROR){
         std::cout << "erorr - socket unbinded" << std::endl;
+        WSACleanup();
         return EXIT_FAILURE;
     }
     LOG("socket binded");
     //socket binded
 
-    LOG("watch netstat and try find binded port socket");
+    //start setting socket listening 
+    int sockListen = listen(serverSocket, 1); //поставили serversocket слушать на одно максимальное подключение 
+    if(sockListen == SOCKET_ERROR){
+        std::cout << "function socket listen - error" << std::endl;
+        std::cout << WSAGetLastError() << std::endl;
+        WSACleanup();
+        return EXIT_FAILURE;
+    } 
+    LOG("SOCKET START LISTENING ");
+    //socket set to listened
+
+    std::cout << "try to find socket with " << PORT << " port in netstat -a!" << std::endl;
     std::system("pause");
     closesocket(serverSocket);
     WSACleanup();
